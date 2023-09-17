@@ -5,7 +5,7 @@ from typing import Tuple
 
 import torch
 from torch import nn, Tensor
-from torch.nn import TransformerEncoder, TransformerEncoderLayer
+from torch.nn import TransformerEncoder, TransformerEncoderLayer, RNN, Conv2d
 from torch.utils.data import dataset
 from torchtext.datasets import WikiText2
 from torchtext.data.utils import get_tokenizer
@@ -25,6 +25,14 @@ class TransformerModel(nn.Module):
         # decoders
         decoder_layers = TransformerDecoderLayer(d_model, nhead, d_hid, dropout)
         self.transformer_encoder = TransformerDecoder(decoder_layers, nlayers)
+        # rnn 
+        self.rnn = RNN(d_model, d_hid, nlayers)
+        # cnn 
+        # input_shape = (N, C_in, H_in, W_in)
+        # output_shape = (N, C_out, H_out, W_out)
+        # H_out = int((H_in + 2*padding[0] - dilation[0]*(kernel_size[0]-1)-1)/stride[0] +1)
+        # W_out = int((W_in + 2*padding[1] - dilation[1]*(kernel_size[1]-1)-1)/stride[1] +1)
+        self.conv2d = Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1)
         # embedding 
         self.embedding = nn.Embedding(ntoken, d_model)
         self.d_model = d_model
